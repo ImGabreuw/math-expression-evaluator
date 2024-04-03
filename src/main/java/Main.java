@@ -4,93 +4,86 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
+        List<Double> values = new ArrayList<>();
 
-        Scanner scanner = new Scanner(System.in);
-        Stack<Integer> numbers = new Stack<Integer>();
         String arithmeticExpression = "";
-        String posfixExpression = "";
-        boolean verificationLoop = true;
+        String postfixExpression = "";
+
         Parser parser = new Parser();
         Evaluator evaluator = new Evaluator();
-        byte choice;
+        byte choice = 0;
 
-        while (verificationLoop) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (choice != 5) {
+                System.out.println("""
+                        1. Entrada da expressão aritmética na notação infixa.
+                        2. Entrada dos valores numéricos associados às variáveis.
+                        3. Conversão da expressão, da notação infixa para a notação posfixa, e exibição da expressão
+                        convertida para posfixa.
+                        4. Avaliação da expressão (apresentação do resultado do cálculo, mostrando a expressão e os
+                        valores das variáveis).
+                        5. Encerramento do programa.
+                        """);
 
-            System.out.println("""
-                    1. Entrada da expressão aritmética na notação infixa.
-                    2. Entrada dos valores numéricos associados às variáveis.
-                    3. Conversão da expressão, da notação infixa para a notação posfixa, e exibição da expressão
-                    convertida para posfixa.
-                    4. Avaliação da expressão (apresentação do resultado do cálculo, mostrando a expressão e os
-                    valores das variáveis).
-                    5. Encerramento do programa.
-                    """);
-
-            try {
                 System.out.print("Digite uma das opções apresentadas: ");
                 choice = scanner.nextByte();
+                scanner.nextLine(); // Consumir a quebra de linha
 
                 switch (choice) {
                     case 1:
-
-                        scanner.nextLine(); // Eliminando o buffer de choice
-
                         System.out.print("Digite uma expressão aritmética de notação infixa: ");
                         arithmeticExpression = scanner.nextLine();
-                        System.out.println(arithmeticExpression);
                         break;
 
                     case 2:
-
-                        if (arithmeticExpression.length() == 0) {
-                            throw new IllegalArgumentException("Não foi digitado uma expressão de notação infixa!\n Voltando para o menu...");
+                        if (arithmeticExpression.isEmpty()) {
+                            System.out.println("Não foi digitada uma expressão de notação infixa!\nVoltando para o menu...");
+                            break;
                         }
 
-                        char expression[] = arithmeticExpression.toCharArray();
+                        for (char c : arithmeticExpression.toCharArray()) {
+                            if (!Character.isLetter(c)) continue;
 
-                        for (char c : expression) {
-
-                            if (Character.isLetter(c)) {
-
-                                scanner.nextLine();
-                                System.out.printf("Digite um valor para a variável %c : ", c);
-                                value = scanner.nextInt();
-                                numbers.push(value);
-                                break;
-                            }
+                            System.out.printf("Digite um valor para a variável %c : ", c);
+                            double value = scanner.nextDouble();
+                            values.add(value);
                         }
-
                         break;
 
                     case 3:
-
-                        if (arithmeticExpression.length() == 0) {
-                            throw new IllegalArgumentException("Não foi digitado uma expressão de notação infixa!\n Voltando para o menu...");
+                        if (arithmeticExpression.isEmpty()) {
+                            System.out.println("Não foi digitada uma expressão de notação infixa!\nVoltando para o menu...");
+                            break;
                         }
 
-                        posfixExpression = parser.toPostfixNotion(arithmeticExpression);
-                        System.out.println(posfixExpression);
-
+                        postfixExpression = parser.toPostfixNotion(arithmeticExpression);
+                        System.out.println(postfixExpression);
                         break;
 
                     case 4:
-
-                        if (posfixExpression.length() == 0) {
-                            throw new IllegalArgumentException("Não existe uma expressão de notação posfixa!\n Voltando para o menu...");
+                        if (postfixExpression.isEmpty()) {
+                            throw new IllegalArgumentException("Não existe uma expressão de notação posfixa!\nVoltando para o menu...");
                         }
 
-                        double result = evaluator.evaluate(posfixExpression, numbers);
+                        double[] valuesIn = new double[values.size()];
+                        for (int i = 0; i < values.size(); i++) {
+                            valuesIn[i] = values.get(i);
+                        }
 
-                        System.out.println("A expressão é :" + posfixExpression);
+                        double result = evaluator.evaluate(postfixExpression, valuesIn);
 
-                        for(int i = expression.length; i > 0; i--){
-                            if(Character.isLetter(expression[i])){
-                                System.out.println("Variável" + expression[i] + "possui valor " + numbers.pop());
+                        System.out.println("A expressão é :" + postfixExpression);
+
+                        char[] expression = arithmeticExpression.toCharArray();
+                        int count = 0;
+
+                        for (int i = 0; i < expression.length; i++) {
+                            if (Character.isLetter(expression[i])) {
+                                System.out.println("Variável " + expression[i] + " possui valor " + valuesIn[count++]);
                             }
                         }
 
                         System.out.println("O resultado da expressão é " + result);
-
                         break;
 
                     case 5:
@@ -99,18 +92,13 @@ public class Main {
 
                     default:
                         System.out.println("Você não digitou uma das opções apresentadas.\nDigite novamente uma nova opção");
-                        scanner.nextLine();
                         break;
                 }
-
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-                return;
-            } catch (java.util.InputMismatchException e) {
-                throw new IllegalArgumentException("Você deve digitar uma opção válida.\n Voltando para o menu....");
             }
-
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        } catch (InputMismatchException e) {
+            throw new IllegalArgumentException("Você deve digitar uma opção válida.\nVoltando para o menu....");
         }
-        scanner.close();
     }
 }
