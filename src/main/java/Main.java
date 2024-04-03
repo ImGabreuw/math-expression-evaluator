@@ -17,6 +17,7 @@ public class Main {
             while (true) {
                 try {
                     System.out.println("""
+                        
                         1. Entrada da expressão aritmética na notação infixa.
                         2. Entrada dos valores numéricos associados às variáveis.
                         3. Conversão da expressão, da notação infixa para a notação posfixa, e exibição da expressão
@@ -45,7 +46,7 @@ public class Main {
                             for (char c : arithmeticExpression.toCharArray()) {
                                 if (!Character.isLetter(c)) continue;
 
-                                System.out.printf("Digite um valor para a variável %c : ", c);
+                                System.out.printf("Digite um valor para a variável %c: ", c);
                                 double value = scanner.nextDouble();
                                 values.add(value);
                             }
@@ -63,7 +64,8 @@ public class Main {
 
                         case 4:
                             if (postfixExpression.isEmpty()) {
-                                throw new IllegalArgumentException("Não existe uma expressão de notação posfixa!\nVoltando para o menu...");
+                                System.out.println("Não existe uma expressão de notação posfixa!\nVoltando para o menu...");
+                                break;
                             }
 
                             double[] valuesIn = new double[values.size()];
@@ -73,14 +75,14 @@ public class Main {
 
                             double result = evaluator.evaluate(postfixExpression, valuesIn);
 
-                            System.out.println("A expressão é :" + postfixExpression);
+                            System.out.println("A expressão posfixa é: " + postfixExpression);
 
                             char[] expression = arithmeticExpression.toCharArray();
                             int count = 0;
 
                             for (char c : expression) {
                                 if (Character.isLetter(c)) {
-                                    System.out.println("Variável " + c + " possui valor " + valuesIn[count++]);
+                                    System.out.println("Variável " + c + " possui valor " + valuesIn[count++] + ".");
                                 }
                             }
 
